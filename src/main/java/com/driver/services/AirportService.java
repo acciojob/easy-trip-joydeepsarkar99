@@ -13,7 +13,7 @@ import java.util.*;
 @Service
 public class AirportService {
 
-    AirportRepository airportRepositoryObj;
+    AirportRepository airportRepositoryObj = new AirportRepository();
 
     public void addAirport(Airport airport){
         airportRepositoryObj.addAirportToDB(airport);
