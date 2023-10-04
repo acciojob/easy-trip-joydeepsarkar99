@@ -57,8 +57,7 @@ public class AirportController {
 
         //Calculate the total number of people who have flights on that day on a particular airport
         //This includes both the people who have come for a flight and who have landed on an airport after their flight
-        Integer countOfPeople = null;
-        countOfPeople = airportServiceObj.getNumberOfPeopleOn(date,airportName);
+        int countOfPeople = airportServiceObj.getNumberOfPeopleOn(date,airportName);
         return countOfPeople;
     }
 
@@ -69,8 +68,7 @@ public class AirportController {
         //Price for any flight will be : 3000 + noOfPeopleWhoHaveAlreadyBooked*50
         //Suppose if 2 people have booked the flight already : the price of flight for the third person will be 3000 + 2*50 = 3100
         //This will not include the current person who is trying to book, he might also be just checking price
-        Integer price = null;
-        price = airportServiceObj.calculateFlightFare(flightId);
+        int price = airportServiceObj.calculateFlightFare(flightId);
         return price;
 
     }
@@ -83,8 +81,7 @@ public class AirportController {
         //return a String "FAILURE"
         //Also if the passenger has already booked a flight then also return "FAILURE".
         //else if you are able to book a ticket then return "SUCCESS"
-        String response = null;
-        response = airportServiceObj.bookATicket(flightId,passengerId);
+        String response = airportServiceObj.bookATicket(flightId,passengerId);
         return response;
     }
 
@@ -95,8 +92,7 @@ public class AirportController {
         // then return a "FAILURE" message
         // Otherwise return a "SUCCESS" message
         // and also cancel the ticket that passenger had booked earlier on the given flightId
-        String response = null;
-        response = airportServiceObj.cancelATicket(flightId,passengerId);
+        String response = airportServiceObj.cancelATicket(flightId,passengerId);
         return response;
     }
 
@@ -106,8 +102,7 @@ public class AirportController {
 
         //Tell the count of flight bookings done by a passenger: This will tell the total count of flight bookings done by a passenger :
 
-        Integer count = null;
-        count = airportServiceObj.countOfBookingsDoneByPassengerAllCombined(passengerId);
+        int count = airportServiceObj.countOfBookingsDoneByPassengerAllCombined(passengerId);
         return count;
     }
 
@@ -125,8 +120,7 @@ public class AirportController {
 
         //We need to get the starting airportName from where the flight will be taking off (Hint think of City variable if that can be of some use)
         //return null incase the flightId is invalid or you are not able to find the airportName
-        String airportName = null;
-        airportName = airportServiceObj.getAirportNameFromFlightId(flightId);
+        String airportName = airportServiceObj.getAirportNameFromFlightId(flightId);
         return airportName;
     }
 
@@ -138,8 +132,7 @@ public class AirportController {
         //That is of all the passengers that have booked a flight till now and then calculate the revenue
         //Revenue will also decrease if some passenger cancels the flight
 
-        Integer revenue = null;
-        revenue = airportServiceObj.calculateRevenueOfAFlight(flightId);
+        int revenue = airportServiceObj.calculateRevenueOfAFlight(flightId);
         return revenue;
     }
 

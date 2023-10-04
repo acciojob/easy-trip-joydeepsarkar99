@@ -51,7 +51,7 @@ public class AirportService {
     }
 
     public int getNumberOfPeopleOn(Date date, String airportName){
-        Integer count = null;
+        int count = 0;
         HashMap<Integer,Flight> flightHashMap = airportRepositoryObj.flightDB();
         for(Flight obj : flightHashMap.values()){
             //converting enum to string and then comparing
@@ -102,7 +102,7 @@ public class AirportService {
     }
 
     public int countOfBookingsDoneByPassengerAllCombined(Integer passengerId){
-        Integer count = null;
+        int count = 0;
         HashMap<Integer,List<Integer>> passengerFlightHashMap = airportRepositoryObj.passengerFlightDB();
         for(List<Integer> passengerList : passengerFlightHashMap.values()){
             if(passengerList.contains(passengerId)) count++;
@@ -122,7 +122,7 @@ public class AirportService {
     }
 
     public int calculateRevenueOfAFlight(Integer flightId){
-        Integer totalRevenue = null;
+        int totalRevenue = 0;
         HashMap<Integer,List<Integer>> passengerFlightHashMap = airportRepositoryObj.passengerFlightDB();
         if(passengerFlightHashMap.containsKey(flightId)){
             List<Integer> passengerList = passengerFlightHashMap.get(flightId);
