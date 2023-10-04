@@ -5,7 +5,6 @@ import com.driver.model.City;
 import com.driver.model.Flight;
 import com.driver.model.Passenger;
 import com.driver.repository.AirportRepository;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
@@ -20,8 +19,10 @@ public class AirportService {
     }
 
     public String getLargestAirportName(){
-        int maxNoOfTerminal = Integer.MIN_VALUE;
         HashMap<String,Airport> airportHashMap = airportRepositoryObj.airportDB();
+        if(airportHashMap.size() == 0) return null;
+
+        int maxNoOfTerminal = -1;
         for(Airport airport : airportHashMap.values()){
             maxNoOfTerminal = Math.max(maxNoOfTerminal,airport.getNoOfTerminals());
         }
@@ -51,32 +52,32 @@ public class AirportService {
     }
 
     public int getNumberOfPeopleOn(Date date, String airportName){
-        int count = 0;
         HashMap<Integer,Flight> flightHashMap = airportRepositoryObj.flightDB();
-        if(flightHashMap.size() != 0) {
-            for (Flight obj : flightHashMap.values()) {
-                //converting enum to string and then comparing
-                if ((obj.getToCity().toString().equals(airportName) || obj.getFromCity().toString().equals(airportName)) && obj.getFlightDate().equals(date)) {
-                    count++;
-                }
+        if(flightHashMap.size() == 0) return 0;
+
+        int count = 0;
+        for (Flight obj : flightHashMap.values()) {
+            //converting enum to string and then comparing
+            if ((obj.getToCity().toString().equals(airportName) || obj.getFromCity().toString().equals(airportName)) && obj.getFlightDate().equals(date)) {
+                count++;
             }
         }
         return count;
     }
 
     public int calculateFlightFare(int flightId){
-        int farePrice = 0;
         HashMap<Integer,List<Integer>> passengerFlightHashMap = airportRepositoryObj.passengerFlightDB();
-        if(passengerFlightHashMap.size() != 0) {
-            List<Integer> passengers = passengerFlightHashMap.get(flightId);
-            farePrice = 3000 + (passengers.size() * 50);
-        }
-        return farePrice;
+        if(passengerFlightHashMap.size() == 0) return 0;
+
+        return  3000 + passengerFlightHashMap.get(flightId).size() * 50;
     }
 
     public String bookATicket(Integer flightId, Integer passengerId){
         HashMap<Integer,List<Integer>> passengerFlightHashMap = airportRepositoryObj.passengerFlightDB();
         HashMap<Integer,Flight> flightHashMap = airportRepositoryObj.flightDB();
+
+        if(flightHashMap.size() == 0) return "FAILURE";
+        else if(passengerFlightHashMap.size() == 0) return "FAILURE";
 
         List<Integer> passengers = passengerFlightHashMap.get(flightId);
         Flight obj = flightHashMap.get(flightId);
@@ -95,8 +96,11 @@ public class AirportService {
         HashMap<Integer,List<Integer>> passengerFlightHashMap = airportRepositoryObj.passengerFlightDB();
         HashMap<Integer,Flight> flightHashMap = airportRepositoryObj.flightDB();
 
-        if(!flightHashMap.containsKey(flightId)) return "FAILURE";
+        if(flightHashMap.size() == 0) return "FAILURE";
+        else if(passengerFlightHashMap.size() == 0) return "FAILURE";
+        else if(!flightHashMap.containsKey(flightId)) return "FAILURE";
         else if(!passengerFlightHashMap.containsKey(flightId)) return "FAILURE";
+
 
         List<Integer> passengers = passengerFlightHashMap.get(flightId);
         if(!passengers.contains(passengerId)) return "FAILURE";
@@ -109,21 +113,22 @@ public class AirportService {
     }
 
     public int countOfBookingsDoneByPassengerAllCombined(Integer passengerId){
-        int count = 0;
         HashMap<Integer,List<Integer>> passengerFlightHashMap = airportRepositoryObj.passengerFlightDB();
-        if(passengerFlightHashMap.size() != 0) {
-            for (List<Integer> passengerList : passengerFlightHashMap.values()) {
-                if (passengerList.contains(passengerId)) count++;
-            }
+        if(passengerFlightHashMap.size() == 0) return 0;
+
+        int count = 0;
+        for (List<Integer> passengerList : passengerFlightHashMap.values()) {
+            if (passengerList.contains(passengerId)) count++;
         }
         return count;
     }
 
     public String getAirportNameFromFlightId(Integer flightId){
         HashMap<Integer,Flight> flightHashMap = airportRepositoryObj.flightDB();
+        if(flightHashMap.size() == 0) return null;
         if(!flightHashMap.containsKey(flightId)) return null;
-        Flight obj = flightHashMap.get(flightId);
 
+        Flight obj = flightHashMap.get(flightId);
         for(City city : City.values()){
             if(city == obj.getFromCity()) return obj.getFromCity().toString();
         }
@@ -131,16 +136,16 @@ public class AirportService {
     }
 
     public int calculateRevenueOfAFlight(Integer flightId){
-        int totalRevenue = 0;
         HashMap<Integer,List<Integer>> passengerFlightHashMap = airportRepositoryObj.passengerFlightDB();
-        if(passengerFlightHashMap.size() != 0) {
-            if (passengerFlightHashMap.containsKey(flightId)) {
-                List<Integer> passengerList = passengerFlightHashMap.get(flightId);
-                int idx = 0;
-                for (int passenger : passengerList) {
-                    totalRevenue += 3000 + (idx * 50);
-                    idx++;
-                }
+        if(passengerFlightHashMap.size() == 0) return 0;
+
+        int totalRevenue = 0;
+        if (passengerFlightHashMap.containsKey(flightId)) {
+            List<Integer> passengerList = passengerFlightHashMap.get(flightId);
+            int idx = 0;
+            for (int passenger : passengerList) {
+                totalRevenue += 3000 + (idx * 50);
+                idx++;
             }
         }
         return totalRevenue;
