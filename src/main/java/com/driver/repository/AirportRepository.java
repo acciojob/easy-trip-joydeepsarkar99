@@ -15,6 +15,7 @@ public class AirportRepository {
     HashMap<Integer,Flight> flightHashMap = new HashMap<>();
     HashMap<Integer, Passenger> passengerHashMap = new HashMap<>();
     HashMap<Integer, List<Integer>> passengerFlightHashMap = new HashMap<>(); //flightId,List<Passenger>
+    HashMap<Integer,List<Flight>> passengerBookedFlightMap = new HashMap<>();
 
 
     public void addAirportToDB(Airport airport){
@@ -46,5 +47,9 @@ public class AirportRepository {
 
     public HashMap<Integer,List<Integer>> passengerFlightDB(){
         return passengerFlightHashMap;
+    }
+
+    public HashMap<Integer,List<Flight>> getPassengerBookedFlightDB(){
+        return passengerBookedFlightMap;
     }
 }

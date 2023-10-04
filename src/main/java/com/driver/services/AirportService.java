@@ -75,53 +75,55 @@ public class AirportService {
     }
 
     public String bookATicket(Integer flightId, Integer passengerId){
-        HashMap<Integer,List<Integer>> passengerFlightHashMap = airportRepositoryObj.passengerFlightDB();
+        HashMap<Integer,List<Flight>> passengerBookedFlightMap = airportRepositoryObj.getPassengerBookedFlightDB();
         HashMap<Integer,Flight> flightHashMap = airportRepositoryObj.flightDB();
         HashMap<Integer,Passenger> passengerHashMap = airportRepositoryObj.passengerDB();
 
         if(!flightHashMap.containsKey(flightId) || !passengerHashMap.containsKey(passengerId)) return "FAILURE";
 
-        for(List<Integer> passengerList : passengerFlightHashMap.values()){
-            for(int i=0;i<passengerList.size();i++){
-                if(passengerList.get(i) == passengerId) return "FAILURE";
-            }
+        for(Flight flight : passengerBookedFlightMap.getOrDefault(passengerId,new ArrayList<>())){
+            if(flightId == flight.getFlightId()) return "FAILURE";
         }
+        HashMap<Integer,List<Integer>> passengerFlightHashMap = airportRepositoryObj.passengerFlightDB();
         List<Integer> passengers = passengerFlightHashMap.getOrDefault(flightId,new ArrayList<>());
         if(flightHashMap.get(flightId).getMaxCapacity() <= passengers.size()) return "FAILURE";
+
+        List<Flight> flightList = passengerBookedFlightMap.getOrDefault(passengerId,new ArrayList<>());
+        flightList.add(flightHashMap.get(flightId));
+        passengerBookedFlightMap.put(passengerId,flightList);
+
         passengers.add(passengerId);
         passengerFlightHashMap.put(flightId,passengers);
         return "SUCCESS";
     }
 
     public String cancelATicket(Integer flightId, Integer passengerId){
-        HashMap<Integer,List<Integer>> passengerFlightHashMap = airportRepositoryObj.passengerFlightDB();
         HashMap<Integer,Flight> flightHashMap = airportRepositoryObj.flightDB();
+        HashMap<Integer,Passenger> passengerHashMap = airportRepositoryObj.passengerDB();
 
-        if(flightHashMap.size() == 0 || !flightHashMap.containsKey(flightId)) return "FAILURE";
-        else if(passengerFlightHashMap.size() == 0 || !passengerFlightHashMap.containsKey(flightId)) return "FAILURE";
+        if(!flightHashMap.containsKey(flightId)) return "FAILURE";
+        if(!passengerHashMap.containsKey(passengerId)) return "FAILURE";
 
+        HashMap<Integer,List<Flight>> passengerBookedFlightMap = airportRepositoryObj.getPassengerBookedFlightDB();
+        if(!passengerBookedFlightMap.containsKey(passengerId)) return "FAILURE";
 
+        List<Flight> flightList = passengerBookedFlightMap.get(passengerId);
+        if(!flightList.contains(flightHashMap.get(flightId))) return "FAILURE";
+        flightList.remove(flightHashMap.get(flightId));
+        if(flightList.size() == 0) passengerBookedFlightMap.remove(passengerId);
+
+        HashMap<Integer,List<Integer>> passengerFlightHashMap = airportRepositoryObj.passengerFlightDB();
         List<Integer> passengers = passengerFlightHashMap.get(flightId);
-        if(!passengers.contains(passengerId)) return "FAILURE";
-
-        int idx = passengers.indexOf(passengerId);
-        passengers.remove(idx);
+        passengers.remove(passengerId);
         passengerFlightHashMap.put(flightId,passengers);
         return "SUCCESS";
 
     }
 
     public int countOfBookingsDoneByPassengerAllCombined(Integer passengerId){
-        HashMap<Integer,List<Integer>> passengerFlightHashMap = airportRepositoryObj.passengerFlightDB();
-        if(passengerFlightHashMap.size() == 0) return 0;
-
-        int count = 0;
-        for(List<Integer> passengerList : passengerFlightHashMap.values()){
-            for(int i=0;i<passengerList.size();i++){
-                if(passengerList.get(i) == passengerId) count++;
-            }
-        }
-        return count;
+        HashMap<Integer,List<Flight>> passengerBookedFlightMap = airportRepositoryObj.getPassengerBookedFlightDB();
+        if(!passengerBookedFlightMap.containsKey(passengerId)) return 0;
+        return passengerBookedFlightMap.get(passengerId).size();
     }
 
     public String getAirportNameFromFlightId(Integer flightId){
