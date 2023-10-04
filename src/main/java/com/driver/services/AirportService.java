@@ -67,39 +67,43 @@ public class AirportService {
 
     public int calculateFlightFare(int flightId){
         HashMap<Integer,List<Integer>> passengerFlightHashMap = airportRepositoryObj.passengerFlightDB();
-        if(passengerFlightHashMap.size() == 0) return 0;
-
-        return  3000 + passengerFlightHashMap.get(flightId).size() * 50;
+        int fare = 3000;
+        fare += passengerFlightHashMap.get(flightId).size() * 50;
+        return fare;
     }
 
     public String bookATicket(Integer flightId, Integer passengerId){
         HashMap<Integer,List<Integer>> passengerFlightHashMap = airportRepositoryObj.passengerFlightDB();
         HashMap<Integer,Flight> flightHashMap = airportRepositoryObj.flightDB();
 
-        if(flightHashMap.size() == 0) return "FAILURE";
-        else if(passengerFlightHashMap.size() == 0) return "FAILURE";
-
-        List<Integer> passengers = passengerFlightHashMap.get(flightId);
-        Flight obj = flightHashMap.get(flightId);
-        if(obj.getMaxCapacity() >= passengers.size()){
-            return "FAILURE";
+        if(passengerFlightHashMap.containsKey(flightId)){
+            List<Integer> passengers = passengerFlightHashMap.get(flightId);
+            if(flightHashMap.containsKey(flightId)){
+                Flight obj = flightHashMap.get(flightId);
+                if(obj.getMaxCapacity() >= passengers.size()){
+                    return "FAILURE";
+                }
+                else if(passengers.contains(passengerId)){
+                    return "FAILURE";
+                }
+            }
+            passengers.add(passengerId);
+            passengerFlightHashMap.put(flightId,passengers);
+            return "SUCCESS";
         }
-        else if(passengers.contains(passengerId)){
-            return "FAILURE";
-        }
-        passengers.add(passengerId);
-        passengerFlightHashMap.put(flightId,passengers);
+        List<Integer> passengerList = new ArrayList<>();
+        passengerList.add(passengerId);
+        passengerFlightHashMap.put(flightId,passengerList);
         return "SUCCESS";
+
     }
 
     public String cancelATicket(Integer flightId, Integer passengerId){
         HashMap<Integer,List<Integer>> passengerFlightHashMap = airportRepositoryObj.passengerFlightDB();
         HashMap<Integer,Flight> flightHashMap = airportRepositoryObj.flightDB();
 
-        if(flightHashMap.size() == 0) return "FAILURE";
-        else if(passengerFlightHashMap.size() == 0) return "FAILURE";
-        else if(!flightHashMap.containsKey(flightId)) return "FAILURE";
-        else if(!passengerFlightHashMap.containsKey(flightId)) return "FAILURE";
+        if(flightHashMap.size() == 0 || !flightHashMap.containsKey(flightId)) return "FAILURE";
+        else if(passengerFlightHashMap.size() == 0 || !passengerFlightHashMap.containsKey(flightId)) return "FAILURE";
 
 
         List<Integer> passengers = passengerFlightHashMap.get(flightId);
@@ -114,43 +118,38 @@ public class AirportService {
 
     public int countOfBookingsDoneByPassengerAllCombined(Integer passengerId){
         HashMap<Integer,List<Integer>> passengerFlightHashMap = airportRepositoryObj.passengerFlightDB();
-        if(passengerFlightHashMap.size() == 0) return 0;
-
-        int count = 0;
-        for (List<Integer> passengerList : passengerFlightHashMap.values()) {
-            if (passengerList.contains(passengerId)) count++;
-        }
-        return count;
+        if(!passengerFlightHashMap.containsKey(passengerId)) return 0;
+        return passengerFlightHashMap.get(passengerId).size();
     }
 
     public String getAirportNameFromFlightId(Integer flightId){
-        HashMap<Integer,Flight> flightHashMap = airportRepositoryObj.flightDB();
-        if(flightHashMap.size() == 0) return null;
-        if(!flightHashMap.containsKey(flightId)) return null;
+        if(flightId == null) return null;
 
+        HashMap<Integer,Flight> flightHashMap = airportRepositoryObj.flightDB();
         Flight obj = flightHashMap.get(flightId);
-        for(City city : City.values()){
-            if(city == obj.getFromCity()) return obj.getFromCity().toString();
+        if(obj == null) return null;
+
+        City city = obj.getFromCity();
+        HashMap<String, Airport> airportHashMap = airportRepositoryObj.airportDB();
+        for(Airport airport : airportHashMap.values()){
+            if(airport.getCity() == city) return airport.getAirportName();
         }
         return null;
+
+
     }
 
     public int calculateRevenueOfAFlight(Integer flightId){
         HashMap<Integer,List<Integer>> passengerFlightHashMap = airportRepositoryObj.passengerFlightDB();
-        if(passengerFlightHashMap.size() == 0) return 0;
+        List<Integer> passengerList = passengerFlightHashMap.getOrDefault(flightId,new ArrayList<>());
+        if(passengerList.size() == 0) return 0;
 
         int totalRevenue = 0;
-        if (passengerFlightHashMap.containsKey(flightId)) {
-            List<Integer> passengerList = passengerFlightHashMap.get(flightId);
-            int idx = 0;
-            for (int passenger : passengerList) {
-                totalRevenue += 3000 + (idx * 50);
-                idx++;
-            }
+        for(int i=0;i<passengerList.size();i++){
+            totalRevenue += (3000 + i * 50);
         }
         return totalRevenue;
     }
-
 
     public void addFlight(Flight flight){
         airportRepositoryObj.addFlightToDB(flight);
