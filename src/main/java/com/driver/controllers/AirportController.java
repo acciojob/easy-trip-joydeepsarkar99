@@ -83,7 +83,7 @@ public class AirportController {
         //return a String "FAILURE"
         //Also if the passenger has already booked a flight then also return "FAILURE".
         //else if you are able to book a ticket then return "SUCCESS"
-        String response = "";
+        String response = null;
         response = airportServiceObj.bookATicket(flightId,passengerId);
         return response;
     }
@@ -95,7 +95,7 @@ public class AirportController {
         // then return a "FAILURE" message
         // Otherwise return a "SUCCESS" message
         // and also cancel the ticket that passenger had booked earlier on the given flightId
-        String response = "";
+        String response = null;
         response = airportServiceObj.cancelATicket(flightId,passengerId);
         return response;
     }
