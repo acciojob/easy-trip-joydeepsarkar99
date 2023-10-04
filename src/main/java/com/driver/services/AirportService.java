@@ -53,12 +53,14 @@ public class AirportService {
 
     public int getNumberOfPeopleOn(Date date, String airportName){
         HashMap<Integer,Flight> flightHashMap = airportRepositoryObj.flightDB();
-        if(flightHashMap.size() == 0) return 0;
+        HashMap<String, Airport> airportHashMap = airportRepositoryObj.airportDB();
+        HashMap<Integer,List<Integer>> passengerFlightHashMap = airportRepositoryObj.passengerFlightDB();
 
         int count = 0;
-        for (Flight obj : flightHashMap.values()) {
-            //converting enum to string and then comparing
-            if ((obj.getToCity().toString().equals(airportName) || obj.getFromCity().toString().equals(airportName)) && obj.getFlightDate().equals(date)) {
+        for (Integer flightId : passengerFlightHashMap.keySet()) {
+            if(flightHashMap.get(flightId).getFromCity().equals(airportHashMap.get(airportName).getCity()) ||
+                    flightHashMap.get(flightId).getToCity().equals(airportHashMap.get(airportName).getCity()) &&
+            !flightHashMap.get(flightId).getFlightDate().before(date) && !flightHashMap.get(flightId).getFlightDate().after(date)){
                 count++;
             }
         }
@@ -118,8 +120,14 @@ public class AirportService {
 
     public int countOfBookingsDoneByPassengerAllCombined(Integer passengerId){
         HashMap<Integer,List<Integer>> passengerFlightHashMap = airportRepositoryObj.passengerFlightDB();
-        if(!passengerFlightHashMap.containsKey(passengerId)) return 0;
-        return passengerFlightHashMap.get(passengerId).size();
+        if(passengerFlightHashMap.size() == 0) return 0;
+
+        int count = 0;
+        for(int flightId : passengerFlightHashMap.keySet()){
+            List<Integer> passengers = passengerFlightHashMap.getOrDefault(flightId,new ArrayList<>());
+            if(passengers.contains(passengerId)) count++;
+        }
+        return count;
     }
 
     public String getAirportNameFromFlightId(Integer flightId){
