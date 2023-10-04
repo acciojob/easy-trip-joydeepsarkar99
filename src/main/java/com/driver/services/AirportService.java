@@ -77,27 +77,20 @@ public class AirportService {
     public String bookATicket(Integer flightId, Integer passengerId){
         HashMap<Integer,List<Integer>> passengerFlightHashMap = airportRepositoryObj.passengerFlightDB();
         HashMap<Integer,Flight> flightHashMap = airportRepositoryObj.flightDB();
+        HashMap<Integer,Passenger> passengerHashMap = airportRepositoryObj.passengerDB();
 
-        if(passengerFlightHashMap.containsKey(flightId)){
-            List<Integer> passengers = passengerFlightHashMap.get(flightId);
-            if(flightHashMap.containsKey(flightId)){
-                Flight obj = flightHashMap.get(flightId);
-                if(obj.getMaxCapacity() >= passengers.size()){
-                    return "FAILURE";
-                }
-                else if(passengers.contains(passengerId)){
-                    return "FAILURE";
-                }
+        if(!flightHashMap.containsKey(flightId) || !passengerHashMap.containsKey(passengerId)) return "FAILURE";
+
+        for(List<Integer> passengerList : passengerFlightHashMap.values()){
+            for(int i=0;i<passengerList.size();i++){
+                if(passengerList.get(i) == passengerId) return "FAILURE";
             }
-            passengers.add(passengerId);
-            passengerFlightHashMap.put(flightId,passengers);
-            return "SUCCESS";
         }
-        List<Integer> passengerList = new ArrayList<>();
-        passengerList.add(passengerId);
-        passengerFlightHashMap.put(flightId,passengerList);
+        List<Integer> passengers = passengerFlightHashMap.getOrDefault(flightId,new ArrayList<>());
+        if(flightHashMap.get(flightId).getMaxCapacity() <= passengers.size()) return "FAILURE";
+        passengers.add(passengerId);
+        passengerFlightHashMap.put(flightId,passengers);
         return "SUCCESS";
-
     }
 
     public String cancelATicket(Integer flightId, Integer passengerId){
@@ -123,9 +116,10 @@ public class AirportService {
         if(passengerFlightHashMap.size() == 0) return 0;
 
         int count = 0;
-        for(int flightId : passengerFlightHashMap.keySet()){
-            List<Integer> passengers = passengerFlightHashMap.getOrDefault(flightId,new ArrayList<>());
-            if(passengers.contains(passengerId)) count++;
+        for(List<Integer> passengerList : passengerFlightHashMap.values()){
+            for(int i=0;i<passengerList.size();i++){
+                if(passengerList.get(i) == passengerId) count++;
+            }
         }
         return count;
     }

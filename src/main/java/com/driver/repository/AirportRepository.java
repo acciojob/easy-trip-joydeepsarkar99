@@ -40,6 +40,10 @@ public class AirportRepository {
         passengerHashMap.put(key,passenger);
     }
 
+    public HashMap<Integer,Passenger> passengerDB(){
+        return passengerHashMap;
+    }
+
     public HashMap<Integer,List<Integer>> passengerFlightDB(){
         return passengerFlightHashMap;
     }
